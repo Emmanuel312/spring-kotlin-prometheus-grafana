@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  prometheus:
+    image: prom/prometheus:latest
+    user: root
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    extra_hosts: ["host.docker.internal:172.17.0.1"]
+    volumes:
+      - ./prometheus/config:/etc/prometheus/
+      - ./prometheus/data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - monitoring
+
+
+networks:
+    monitoring:
+      driver: bridge
+
+volumes:
+  grafana-storage:
